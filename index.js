@@ -10,7 +10,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lgdlxzl.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 // console.log(uri)
@@ -19,6 +19,7 @@ async function run() {
     try {
 
         const serviceCollection = client.db('dcp-edm').collection('services');
+        const reviewCollection = client.db('dcp-edm').collection('reviews');
         app.get('/services', async (req, res) => {
 
             const query = {}
@@ -27,10 +28,35 @@ async function run() {
             if (req.query.size) {
                 size = parseInt(req.query.size);
             }
-            console.log(size)
+            // console.log(size)
             const result = await cursor.limit(size).toArray();
             res.send(result);
-            // console.log(result)
+
+        })
+        app.get('/services/:id', async (req, res) => {
+
+            const query = { _id: ObjectId(req.params.id) }
+            console.log(query)
+            const result = await serviceCollection.findOne(query);
+            res.send(result);
+        })
+        app.get('/review/:id', async (req, res) => {
+
+            const query = { serviceId: req.params.id }
+
+            const cursor = reviewCollection.find(query);
+            const result = await cursor.toArray();
+            console.log(result);
+            res.send(result);
+        })
+
+
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            console.log(result);
+            res.send(result);
+            // console.log(review);
         })
     }
     finally {
