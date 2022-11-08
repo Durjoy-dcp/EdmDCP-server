@@ -34,6 +34,20 @@ async function run() {
             res.send(result);
 
         })
+        app.patch(`/review/:id`, async (req, res) => {
+            const id = req.params.id;
+            const status = req.body.review;
+            console.log(status)
+            const query = { _id: ObjectID(id) }
+            const updateQuery = {
+                $set: {
+                    review: status
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updateQuery);
+            res.send(result)
+            console.log(result)
+        })
         app.get('/services/:id', async (req, res) => {
 
             const query = { _id: ObjectId(req.params.id) }
