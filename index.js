@@ -15,11 +15,31 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 // console.log(uri)
 
+async function run() {
+    try {
+
+        const serviceCollection = client.db('dcp-edm').collection('services');
+        app.get('/services', async (req, res) => {
+
+            const query = {}
+            const cursor = serviceCollection.find(query);
+            let size = await serviceCollection.estimatedDocumentCount();
+            if (req.query.size) {
+                size = parseInt(req.query.size);
+            }
+            console.log(size)
+            const result = await cursor.limit(size).toArray();
+            res.send(result);
+            // console.log(result)
+        })
+    }
+    finally {
+
+    }
+}
+run().catch(err => console.log(err))
 
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
