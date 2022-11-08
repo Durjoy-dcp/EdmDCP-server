@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const port = 5000
 const cors = require('cors')
+const { ObjectID } = require('bson');
 require('dotenv').config()
 
 app.use(cors())
@@ -44,20 +45,37 @@ async function run() {
 
             const query = { serviceId: req.params.id }
 
-            const cursor = reviewCollection.find(query);
+            const cursor = reviewCollection.find(query).sort({ date: -1 });
             const result = await cursor.toArray();
-            console.log(result);
+            // console.log(result);
+            res.send(result);
+        })
+        app.get('/myreview', async (req, res) => {
+
+            const query = { email: req.query.email }
+            const cursor = reviewCollection.find(query).sort({ date: -1 });
+            const result = await cursor.toArray();
+            // console.log(result);
             res.send(result);
         })
 
 
         app.post('/review', async (req, res) => {
             const review = req.body;
+            review.date = new Date(Date.now()).toISOString();
             const result = await reviewCollection.insertOne(review);
-            console.log(result);
+            // console.log(result);
             res.send(result);
             // console.log(review);
         })
+        app.delete(`/review/:id`, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            // console.log(query);
+            const result = await reviewCollection.deleteOne(query)
+            res.send(result)
+        })
+
     }
     finally {
 
