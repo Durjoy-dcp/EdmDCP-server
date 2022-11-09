@@ -55,7 +55,7 @@ async function run() {
         app.patch(`/review/:id`, async (req, res) => {
             const id = req.params.id;
             const status = req.body.review;
-            console.log(status)
+            // console.log(status)
             const query = { _id: ObjectID(id) }
             const updateQuery = {
                 $set: {
@@ -64,12 +64,12 @@ async function run() {
             }
             const result = await reviewCollection.updateOne(query, updateQuery);
             res.send(result)
-            console.log(result)
+            // console.log(result)
         })
         app.get('/services/:id', async (req, res) => {
 
             const query = { _id: ObjectId(req.params.id) }
-            console.log(query)
+            // console.log(query)
             const result = await serviceCollection.findOne(query);
             res.send(result);
         })
@@ -84,12 +84,12 @@ async function run() {
         })
         app.get('/myreview', verifyJWT, async (req, res) => {
             const decoded = req.decoded;
-            console.log('inside myreview', decoded);
+            // console.log('inside myreview', decoded);
             if (decoded.email !== req.query.email) {
                 return res.status(403).send({ message: 'unauthorized  access' });
 
             }
-            console.log(req.headers.authorization);
+            // console.log(req.headers.authorization);
             const query = { email: req.query.email }
             const cursor = reviewCollection.find(query).sort({ date: -1 });
             const result = await cursor.toArray();
@@ -116,7 +116,7 @@ async function run() {
             const service = req.body;
             const result = await serviceCollection.insertOne(service);
             res.send(result);
-            console.log(result);
+            // console.log(result);
             // console.log(review);
         })
         app.delete(`/review/:id`, async (req, res) => {
